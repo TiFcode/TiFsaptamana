@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="theme-color" content="#6a5ae0">
-  <title>TiFzile — Săptămâna mea</title>
+  <title>TiFsaptamana — Săptămâna mea</title>
   <style>
     :root { --ink:#27304a; --violet:#6a5ae0; --sky:#bcecff; --sun:#ffd75c; --mint:#7cdbac; --paper:#fffdf8; --shadow:0 12px 28px rgba(54,50,115,.17); }
     * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -42,7 +42,7 @@
   </style>
 </head>
 <body><div class="app">
-  <header><div><h1>📅 TiFzile</h1><p class="sub">Săptămâna mea, pas cu pas</p></div><button class="settings" aria-label="Setează zilele de grădiniță" onclick="openSettings()">⚙️</button></header>
+  <header><div><h1>📅 TiFsaptamana</h1><p class="sub">Săptămâna mea, pas cu pas</p></div><button class="settings" aria-label="Setează zilele de grădiniță" onclick="openSettings()">⚙️</button></header>
   <div class="week-strip" id="weekStrip" aria-label="Zilele săptămânii"></div>
   <main><nav class="mode-nav" aria-label="Alege jocul"><button class="active" data-mode="explore">👀 Descoperă</button><button data-mode="sort">🎒 Unde merg?</button><button data-mode="build">🧩 Pune în ordine</button></nav>
   <section class="card">
@@ -62,13 +62,13 @@ const DAYS = [
   {name:'Sâmbătă', short:'Sâ', emoji:'🛝', clue:'Este weekend. Ne odihnim și ne jucăm.'},
   {name:'Duminică', short:'Du', emoji:'👨‍👩‍👧', clue:'Este weekend. Mâine începe iar o săptămână.'}
 ];
-let kinder = JSON.parse(localStorage.getItem('tifzile-kinder') || '[0,1,2,3,4]'); let current=0, quizDay=0, buildAt=0;
+let kinder = JSON.parse(localStorage.getItem('tifsaptamana-kinder') || '[0,1,2,3,4]'); let current=0, quizDay=0, buildAt=0;
 const $=id=>document.getElementById(id);
 function isKinder(i){return kinder.includes(i)}
 function renderStrip(){ $('weekStrip').innerHTML=DAYS.map((d,i)=>`<button class="dot ${i===current?'today':''} ${isKinder(i)?'kinder':'home'}" onclick="showDay(${i})" aria-label="${d.name}">${d.short}</button>`).join(''); }
 function showDay(i){current=(i+7)%7; const d=DAYS[current], k=isKinder(current); $('dayEmoji').textContent=d.emoji; $('dayName').textContent=d.name; $('dayClue').textContent=d.clue; $('routine').className='routine '+(k?'k':'h'); $('routine').innerHTML=k?'<span>🎒</span><div><strong>Zi de grădiniță!</strong><small>Luăm ghiozdănelul și mergem la prieteni.</small></div>':'<span>🏠</span><div><strong>Zi acasă!</strong><small>Ne odihnim, ne jucăm și stăm cu familia.</small></div>'; renderStrip(); }
 function changeDay(n){showDay(current+n)}
-function speakCurrent(){ const text=`${DAYS[current].name}. ${isKinder(current)?'Zi de grădiniță.':'Zi acasă.'}`; if('speechSynthesis' in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(text));} }
+function speakCurrent(){ const text=`${DAYS[current].name}. ${isKinder(current)?'Zi de grădiniță.':'Zi acasă.'}`; if('speechSynthesis' in window){ speechSynthesis.cancel(); const utterance=new SpeechSynthesisUtterance(text); utterance.lang='ro-RO'; utterance.rate=.86; utterance.pitch=1.05; speechSynthesis.speak(utterance); } }
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-mode]').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.mode).classList.add('active');if(b.dataset.mode==='sort')newQuiz();if(b.dataset.mode==='build')newBuild();});
 function newQuiz(){quizDay=Math.floor(Math.random()*7);$('sortPrompt').innerHTML=`Astăzi este <strong>${DAYS[quizDay].name}</strong>!<small>Unde mergem?</small>`;$('sortFeedback').textContent='';document.querySelectorAll('.answer').forEach(b=>b.className='answer');}
 document.querySelectorAll('.answer').forEach(btn=>btn.onclick=()=>{const right=(btn.dataset.choice==='k')===isKinder(quizDay);document.querySelectorAll('.answer').forEach(b=>b.disabled=true);btn.classList.add(right?'good':'nope');$('sortFeedback').textContent=right?'🌟 Bravo! Ai știut ce facem!':'Hai să ne uităm la calendar împreună.';setTimeout(()=>{document.querySelectorAll('.answer').forEach(b=>b.disabled=false);newQuiz()},1500);});
@@ -76,6 +76,6 @@ function newBuild(){buildAt=0;$('buildTip').textContent='Atinge prima zi: Luni.'
 function renderBuild(){ $('weekBuild').innerHTML=DAYS.map((_,i)=>`<div class="slot ${i<buildAt?'filled':''}">${i<buildAt?DAYS[i].short:(i===buildAt?'?':'')}</div>`).join(''); const pool=[...DAYS.keys()].filter(i=>i>=buildAt).sort(()=>Math.random()-.5); $('dayBank').innerHTML=pool.map(i=>`<button class="chip" onclick="placeDay(${i})">${DAYS[i].name}</button>`).join(''); }
 function placeDay(i){if(i===buildAt){buildAt++;if(buildAt===7){$('buildTip').textContent='🎉 Ai pus toată săptămâna în ordine!';$('dayBank').innerHTML='<button class="wide-btn" onclick="newBuild()">Mai fac o dată!</button>'; $('weekBuild').innerHTML=DAYS.map(d=>`<div class="slot filled">${d.short}</div>`).join('');}else{$('buildTip').textContent=`Bravo! Urmează ${DAYS[buildAt].name}.`;renderBuild();}}else{$('buildTip').textContent=`Mai întâi vine ${DAYS[buildAt].name}. Încearcă din nou!`;}}
 function openSettings(){ $('settingsDays').innerHTML=DAYS.map((d,i)=>`<button class="toggle-day ${isKinder(i)?'on':''}" onclick="this.classList.toggle('on')" data-i="${i}">${d.name}</button>`).join('');$('settingsDialog').showModal(); }
-function saveSettings(){kinder=[...document.querySelectorAll('.toggle-day.on')].map(b=>+b.dataset.i);localStorage.setItem('tifzile-kinder',JSON.stringify(kinder));$('settingsDialog').close();showDay(current);}
+function saveSettings(){kinder=[...document.querySelectorAll('.toggle-day.on')].map(b=>+b.dataset.i);localStorage.setItem('tifsaptamana-kinder',JSON.stringify(kinder));$('settingsDialog').close();showDay(current);}
 showDay(0);
 </script></body></html>
