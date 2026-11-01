@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#6a5ae0">
+  <title>TiFzile — Săptămâna mea</title>
+  <style>
+    :root { --ink:#27304a; --violet:#6a5ae0; --sky:#bcecff; --sun:#ffd75c; --mint:#7cdbac; --paper:#fffdf8; --shadow:0 12px 28px rgba(54,50,115,.17); }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { margin:0; min-height:100dvh; color:var(--ink); font-family:Nunito, "Arial Rounded MT Bold", system-ui, sans-serif; background:linear-gradient(160deg,#c9efff 0%,#ebe2ff 48%,#fff4c9 100%); user-select:none; }
+    button { font:inherit; cursor:pointer; }
+    .app { width:min(100%,620px); min-height:100dvh; margin:auto; padding:env(safe-area-inset-top) 15px 20px; display:flex; flex-direction:column; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:13px 2px 9px; }
+    h1 { margin:0; font-size:clamp(1.35rem,5vw,1.75rem); line-height:1; } .sub { margin:4px 0 0; font-weight:700; color:#57627b; font-size:.88rem; }
+    .settings { border:0; background:#fff; border-radius:16px; min-width:46px; min-height:46px; box-shadow:var(--shadow); font-size:1.35rem; }
+    .week-strip { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin:4px 0 15px; }
+    .dot { border:0; border-radius:14px; min-height:54px; color:#52607a; background:rgba(255,255,255,.7); font-weight:900; box-shadow:0 3px 0 rgba(73,76,120,.09); }
+    .dot.today { background:var(--violet); color:white; transform:translateY(-3px); } .dot.kinder { border-bottom:5px solid #66cd91; } .dot.home { border-bottom:5px solid #ffbe55; }
+    main { flex:1; display:flex; flex-direction:column; }
+    .card { background:rgba(255,255,255,.93); border-radius:27px; padding:18px; box-shadow:var(--shadow); }
+    .mode-nav { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin:0 0 14px; }
+    .mode-nav button { border:0; border-radius:15px; padding:10px 4px; background:rgba(255,255,255,.7); font-size:.76rem; font-weight:900; color:#536079; }
+    .mode-nav button.active { background:var(--violet); color:#fff; box-shadow:0 5px 12px rgba(97,78,209,.25); }
+    .screen { display:none; } .screen.active { display:block; animation:appear .22s ease; } @keyframes appear { from{opacity:.3;transform:translateY(6px)} to{opacity:1;transform:none} }
+    .day-hero { text-align:center; padding:8px 3px 14px; } .day-emoji { font-size:4.2rem; line-height:1; display:block; filter:drop-shadow(0 6px 4px rgba(0,0,0,.11)); }
+    .day-name { font-size:clamp(2rem,10vw,3rem); margin:7px 0 2px; font-weight:1000; } .day-clue { margin:0; font-size:1.02rem; font-weight:800; color:#56617b; }
+    .routine { display:flex; align-items:center; gap:13px; padding:13px; border-radius:19px; margin:12px 0; font-weight:900; text-align:left; } .routine.k { background:#e1f9eb; } .routine.h { background:#fff3d2; }
+    .routine strong { display:block; font-size:1.05rem; } .routine span { font-size:1.8rem; }
+    .nav-days { display:flex; gap:9px; justify-content:space-between; } .wide-btn,.nav-days button { border:0; border-radius:17px; padding:13px 15px; background:#edf0ff; color:#485372; font-weight:900; font-size:1rem; }
+    .wide-btn { width:100%; background:var(--violet); color:#fff; box-shadow:0 7px 0 #4d3cb5; margin-top:9px; } .wide-btn:active { transform:translateY(4px); box-shadow:0 3px 0 #4d3cb5; }
+    .mission { text-align:center; font-size:1.27rem; font-weight:1000; line-height:1.25; margin:3px 0 16px; } .mission small { display:block; color:#66708a; font-size:.83rem; margin-top:5px; }
+    .answer-grid { display:grid; grid-template-columns:1fr 1fr; gap:11px; } .answer { min-height:108px; border:3px solid transparent; border-radius:23px; background:#f3f5ff; color:var(--ink); padding:10px; font-size:1.05rem; font-weight:1000; } .answer .big { display:block; font-size:2.4rem; margin-bottom:4px; }
+    .answer:active { transform:scale(.96); } .answer.good { background:#dff8e8; border-color:#54bd7d; } .answer.nope { background:#ffe4e7; border-color:#f07a82; }
+    .feedback { min-height:28px; text-align:center; margin:12px 0 0; font-size:1.05rem; font-weight:1000; color:#55617e; }
+    .build-tip { font-size:.9rem; text-align:center; color:#66708a; font-weight:800; margin:0 0 11px; }
+    .week-build { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; min-height:92px; align-items:stretch; } .slot { border:2px dashed #c9c9e3; background:#f8f8ff; border-radius:13px; display:flex; align-items:center; justify-content:center; min-width:0; padding:4px; font-size:.7rem; text-align:center; font-weight:1000; color:#a1a5be; }
+    .slot.filled { border:0; color:#fff; background:var(--violet); } .day-bank { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:16px; } .chip { border:0; border-radius:999px; background:#e7e3ff; color:#3c337e; padding:11px 13px; font-weight:1000; font-size:.9rem; } .chip:disabled { opacity:.26; }
+    .legend { display:flex; justify-content:center; gap:14px; font-size:.78rem; font-weight:900; color:#5d6680; margin:10px 0 0; }.legend i { display:inline-block; width:10px;height:10px;border-radius:50%;margin-right:4px;background:#66cd91; }.legend i.home {background:#ffbe55;}
+    dialog { border:0; border-radius:24px; max-width:min(92vw,450px); box-shadow:0 20px 60px rgba(25,18,70,.35); color:var(--ink); padding:21px; } dialog::backdrop { background:rgba(44,35,88,.45); } dialog h2 { margin:0 0 6px; } dialog p { margin:6px 0 15px; color:#5d6680; font-weight:700; } .setting-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px; } .toggle-day { border:2px solid #d9d8ec; border-radius:13px; padding:9px 11px; background:#fff; font-weight:1000; color:#5b6680; }.toggle-day.on { background:#dff8e8; border-color:#55bf7e; color:#197443; }.close { background:var(--violet);color:#fff;border:0;border-radius:14px;padding:11px 17px;font-weight:1000;float:right; }
+    @media (min-width:600px){.app{padding-left:22px;padding-right:22px}.card{padding:25px}.answer{min-height:125px}}
+  </style>
+</head>
+<body><div class="app">
+  <header><div><h1>📅 TiFzile</h1><p class="sub">Săptămâna mea, pas cu pas</p></div><button class="settings" aria-label="Setează zilele de grădiniță" onclick="openSettings()">⚙️</button></header>
+  <div class="week-strip" id="weekStrip" aria-label="Zilele săptămânii"></div>
+  <main><nav class="mode-nav" aria-label="Alege jocul"><button class="active" data-mode="explore">👀 Descoperă</button><button data-mode="sort">🎒 Unde merg?</button><button data-mode="build">🧩 Pune în ordine</button></nav>
+  <section class="card">
+    <div class="screen active" id="explore"><div class="day-hero"><span class="day-emoji" id="dayEmoji">🌞</span><div class="day-name" id="dayName">Luni</div><p class="day-clue" id="dayClue">După duminică vine luni.</p></div><div class="routine k" id="routine"><span>🎒</span><div><strong>Zi de grădiniță!</strong><small>Luăm ghiozdănelul și mergem la prieteni.</small></div></div><div class="nav-days"><button onclick="changeDay(-1)">← Înapoi</button><button onclick="changeDay(1)">Înainte →</button></div><button class="wide-btn" onclick="speakCurrent()">🔊 Spune-mi ziua</button></div>
+    <div class="screen" id="sort"><div class="mission" id="sortPrompt">Astăzi este…<small>Alege ce facem în această zi.</small></div><div class="answer-grid"><button class="answer" data-choice="k"><span class="big">🎒</span>Merg la grădiniță</button><button class="answer" data-choice="h"><span class="big">🏠</span>Stau acasă</button></div><div class="feedback" id="sortFeedback"> </div></div>
+    <div class="screen" id="build"><div class="mission">Pune zilele în ordine!<small>Începe cu Luni, apoi mergem înainte.</small></div><p class="build-tip" id="buildTip">Atinge prima zi.</p><div class="week-build" id="weekBuild"></div><div class="day-bank" id="dayBank"></div></div>
+  </section><div class="legend"><span><i></i>grădiniță</span><span><i class="home"></i>acasă / weekend</span></div></main>
+</div>
+<dialog id="settingsDialog"><h2>🎒 Zile de grădiniță</h2><p>Alege zilele în care merge la grădiniță. Jocurile se adaptează automat.</p><div class="setting-row" id="settingsDays"></div><button class="close" onclick="saveSettings()">Gata!</button></dialog>
+<script>
+const DAYS = [
+  {name:'Luni', short:'Lu', emoji:'🌞', clue:'După duminică vine luni.'},
+  {name:'Marți', short:'Ma', emoji:'🌈', clue:'După luni vine marți.'},
+  {name:'Miercuri', short:'Mi', emoji:'🐝', clue:'Suntem la mijlocul săptămânii.'},
+  {name:'Joi', short:'Jo', emoji:'🚀', clue:'După miercuri vine joi.'},
+  {name:'Vineri', short:'Vi', emoji:'🎈', clue:'Ultima zi înainte de weekend!'},
+  {name:'Sâmbătă', short:'Sâ', emoji:'🛝', clue:'Este weekend. Ne odihnim și ne jucăm.'},
+  {name:'Duminică', short:'Du', emoji:'👨‍👩‍👧', clue:'Este weekend. Mâine începe iar o săptămână.'}
+];
+let kinder = JSON.parse(localStorage.getItem('tifzile-kinder') || '[0,1,2,3,4]'); let current=0, quizDay=0, buildAt=0;
+const $=id=>document.getElementById(id);
+function isKinder(i){return kinder.includes(i)}
+function renderStrip(){ $('weekStrip').innerHTML=DAYS.map((d,i)=>`<button class="dot ${i===current?'today':''} ${isKinder(i)?'kinder':'home'}" onclick="showDay(${i})" aria-label="${d.name}">${d.short}</button>`).join(''); }
+function showDay(i){current=(i+7)%7; const d=DAYS[current], k=isKinder(current); $('dayEmoji').textContent=d.emoji; $('dayName').textContent=d.name; $('dayClue').textContent=d.clue; $('routine').className='routine '+(k?'k':'h'); $('routine').innerHTML=k?'<span>🎒</span><div><strong>Zi de grădiniță!</strong><small>Luăm ghiozdănelul și mergem la prieteni.</small></div>':'<span>🏠</span><div><strong>Zi acasă!</strong><small>Ne odihnim, ne jucăm și stăm cu familia.</small></div>'; renderStrip(); }
+function changeDay(n){showDay(current+n)}
+function speakCurrent(){ const text=`${DAYS[current].name}. ${isKinder(current)?'Zi de grădiniță.':'Zi acasă.'}`; if('speechSynthesis' in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(text));} }
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-mode]').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.mode).classList.add('active');if(b.dataset.mode==='sort')newQuiz();if(b.dataset.mode==='build')newBuild();});
+function newQuiz(){quizDay=Math.floor(Math.random()*7);$('sortPrompt').innerHTML=`Astăzi este <strong>${DAYS[quizDay].name}</strong>!<small>Unde mergem?</small>`;$('sortFeedback').textContent='';document.querySelectorAll('.answer').forEach(b=>b.className='answer');}
+document.querySelectorAll('.answer').forEach(btn=>btn.onclick=()=>{const right=(btn.dataset.choice==='k')===isKinder(quizDay);document.querySelectorAll('.answer').forEach(b=>b.disabled=true);btn.classList.add(right?'good':'nope');$('sortFeedback').textContent=right?'🌟 Bravo! Ai știut ce facem!':'Hai să ne uităm la calendar împreună.';setTimeout(()=>{document.querySelectorAll('.answer').forEach(b=>b.disabled=false);newQuiz()},1500);});
+function newBuild(){buildAt=0;$('buildTip').textContent='Atinge prima zi: Luni.';renderBuild();}
+function renderBuild(){ $('weekBuild').innerHTML=DAYS.map((_,i)=>`<div class="slot ${i<buildAt?'filled':''}">${i<buildAt?DAYS[i].short:(i===buildAt?'?':'')}</div>`).join(''); const pool=[...DAYS.keys()].filter(i=>i>=buildAt).sort(()=>Math.random()-.5); $('dayBank').innerHTML=pool.map(i=>`<button class="chip" onclick="placeDay(${i})">${DAYS[i].name}</button>`).join(''); }
+function placeDay(i){if(i===buildAt){buildAt++;if(buildAt===7){$('buildTip').textContent='🎉 Ai pus toată săptămâna în ordine!';$('dayBank').innerHTML='<button class="wide-btn" onclick="newBuild()">Mai fac o dată!</button>'; $('weekBuild').innerHTML=DAYS.map(d=>`<div class="slot filled">${d.short}</div>`).join('');}else{$('buildTip').textContent=`Bravo! Urmează ${DAYS[buildAt].name}.`;renderBuild();}}else{$('buildTip').textContent=`Mai întâi vine ${DAYS[buildAt].name}. Încearcă din nou!`;}}
+function openSettings(){ $('settingsDays').innerHTML=DAYS.map((d,i)=>`<button class="toggle-day ${isKinder(i)?'on':''}" onclick="this.classList.toggle('on')" data-i="${i}">${d.name}</button>`).join('');$('settingsDialog').showModal(); }
+function saveSettings(){kinder=[...document.querySelectorAll('.toggle-day.on')].map(b=>+b.dataset.i);localStorage.setItem('tifzile-kinder',JSON.stringify(kinder));$('settingsDialog').close();showDay(current);}
+showDay(0);
+</script></body></html>
