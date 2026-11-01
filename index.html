@@ -42,7 +42,7 @@
   </style>
 </head>
 <body><div class="app">
-  <header><div><h1>📅 TiFsaptamana</h1><p class="sub">Săptămâna mea, pas cu pas</p></div><button class="settings" aria-label="Setează zilele de grădiniță" onclick="openSettings()">⚙️</button></header>
+  <header><div><h1>📅 TiFsaptamana</h1><p class="sub">Săptămâna mea, pas cu pas</p></div></header>
   <div class="week-strip" id="weekStrip" aria-label="Zilele săptămânii"></div>
   <main><nav class="mode-nav" aria-label="Alege jocul"><button class="active" data-mode="explore">👀 Descoperă</button><button data-mode="sort">🎒 Unde merg?</button><button data-mode="build">🧩 Pune în ordine</button></nav>
   <section class="card">
@@ -51,7 +51,6 @@
     <div class="screen" id="build"><div class="mission">Pune zilele în ordine!<small>Începe cu Luni, apoi mergem înainte.</small></div><p class="build-tip" id="buildTip">Atinge prima zi.</p><div class="week-build" id="weekBuild"></div><div class="day-bank" id="dayBank"></div></div>
   </section><div class="legend"><span><i></i>grădiniță</span><span><i class="home"></i>acasă / weekend</span></div></main>
 </div>
-<dialog id="settingsDialog"><h2>🎒 Zile de grădiniță</h2><p>Alege zilele în care merge la grădiniță. Jocurile se adaptează automat.</p><div class="setting-row" id="settingsDays"></div><button class="close" onclick="saveSettings()">Gata!</button></dialog>
 <script>
 const DAYS = [
   {name:'Luni', short:'Lu', emoji:'🌞', clue:'După duminică vine luni.'},
@@ -62,9 +61,10 @@ const DAYS = [
   {name:'Sâmbătă', short:'Sâ', emoji:'🛝', clue:'Este weekend. Ne odihnim și ne jucăm.'},
   {name:'Duminică', short:'Du', emoji:'👨‍👩‍👧', clue:'Este weekend. Mâine începe iar o săptămână.'}
 ];
-let kinder = JSON.parse(localStorage.getItem('tifsaptamana-kinder') || '[0,1,2,3,4]'); let current=0, quizDay=0, buildAt=0;
+const KINDER_DAYS = [0,1,2,3,4];
+let current=0, quizDay=0, buildAt=0;
 const $=id=>document.getElementById(id);
-function isKinder(i){return kinder.includes(i)}
+function isKinder(i){return KINDER_DAYS.includes(i)}
 function renderStrip(){ $('weekStrip').innerHTML=DAYS.map((d,i)=>`<button class="dot ${i===current?'today':''} ${isKinder(i)?'kinder':'home'}" onclick="showDay(${i})" aria-label="${d.name}">${d.short}</button>`).join(''); }
 function speakText(text){
   if(!('speechSynthesis' in window) || !text) return;
@@ -88,8 +88,5 @@ document.querySelectorAll('.answer').forEach(btn=>btn.onclick=()=>{const right=(
 function newBuild(){buildAt=0;$('buildTip').textContent='Atinge prima zi: Luni.';renderBuild();}
 function renderBuild(){ $('weekBuild').innerHTML=DAYS.map((_,i)=>`<div class="slot ${i<buildAt?'filled':''}">${i<buildAt?DAYS[i].short:(i===buildAt?'?':'')}</div>`).join(''); const pool=[...DAYS.keys()].filter(i=>i>=buildAt).sort(()=>Math.random()-.5); $('dayBank').innerHTML=pool.map(i=>`<button class="chip" onclick="placeDay(${i})">${DAYS[i].name}</button>`).join(''); }
 function placeDay(i){if(i===buildAt){buildAt++;if(buildAt===7){const message='Ai pus toată săptămâna în ordine!';$('buildTip').textContent='🎉 '+message;$('dayBank').innerHTML='<button class="wide-btn" onclick="newBuild()">Mai fac o dată!</button>'; $('weekBuild').innerHTML=DAYS.map(d=>`<div class="slot filled">${d.short}</div>`).join('');speakText(message);}else{const message=`Bravo! Urmează ${DAYS[buildAt].name}.`;$('buildTip').textContent=message;renderBuild();speakText(`${DAYS[i].name}. ${message}`);}}else{const message=`Mai întâi vine ${DAYS[buildAt].name}. Încearcă din nou!`;$('buildTip').textContent=message;speakText(`${DAYS[i].name}. ${message}`);}}
-function openSettings(){ $('settingsDays').innerHTML=DAYS.map((d,i)=>`<button class="toggle-day ${isKinder(i)?'on':''}" onclick="toggleSettingDay(this)" data-i="${i}">${d.name}</button>`).join('');$('settingsDialog').showModal();speakText('Zile de grădiniță. Alege zilele în care merge la grădiniță. Jocurile se adaptează automat.'); }
-function toggleSettingDay(button){button.classList.toggle('on');speakText(`${button.textContent}. ${button.classList.contains('on')?'Zi de grădiniță.':'Zi acasă.'}`);}
-function saveSettings(){kinder=[...document.querySelectorAll('.toggle-day.on')].map(b=>+b.dataset.i);localStorage.setItem('tifsaptamana-kinder',JSON.stringify(kinder));$('settingsDialog').close();speakText('Gata! Am salvat zilele de grădiniță.');showDay(current,false);}
 showDay(0,false);
 </script></body></html>
